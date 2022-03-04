@@ -288,7 +288,7 @@ class Screen:
         self.top.place(rely=0, relheight=self.MAIN_SPLIT, relwidth=1.0)
 
         self.start_button()  # Creates the Start\Check button
-        self.brute_force_button()
+        # self.brute_force_button()
         self.forming_word()  # Creates the forming word box
         self.clock()  # Creates the clock
 
@@ -418,6 +418,7 @@ class Screen:
     '''General gameplay - Most should move to boggle.py'''
 
     def end(self, type='TIMEUP'):
+        self.brute_force()
         self.end_frame = Frame(self.game_window, bg=self.GAME_WINDOW_COLOR)
         self.end_frame.pack(expand=True)
         self.main_button.config(state=DISABLED)
@@ -536,15 +537,13 @@ class Screen:
         self.__blocks = blocks
 
     def brute_force(self):
-        if not self.clock_running:
-            tkinter.messagebox.showinfo(self.ENDERS['STALE'][0], self.ENDERS['STALE'][1])
-        else:
-            (found_words, total) = self.__endgame.invoke()
-            self.computer_bank_container.delete(0, END)
-            self.computer_bank_container.insert(END, f'Computer Found: {len(found_words)} words', '')
-            self.computer_bank_container.insert(END, f'and scored {total} points', '')
-            for word in found_words:
-                self.computer_bank_container.insert(END, word)
+        # Find all missing words the player couldn't identify
+        (found_words, total) = self.__endgame.invoke(self.__bank)
+        self.computer_bank_container.delete(0, END)
+        self.computer_bank_container.insert(END, f'Computer Found: {len(found_words)} words', '')
+        self.computer_bank_container.insert(END, f'and scored {total} points', '')
+        for word in found_words:
+            self.computer_bank_container.insert(END, word)
 
     def press(self, location, re=False):
         if self.__board[location].get_status():
@@ -612,6 +611,10 @@ class Screen:
         self.forming_word.config(text=f'{self.__curr_word}')
         self.score_label.config(text=f'{self.__score}')
         self.bank_container.delete(2, END)
+        self.computer_bank_container.delete(0, END)
+        self.computer_bank_container.delete(1, END)
+        self.computer_bank_container.delete(2, END)
+        self.computer_bank_container.insert(END, 'Computer Found:', '')
 
     def reset_screen(self):
         self.end_frame.pack_forget()
